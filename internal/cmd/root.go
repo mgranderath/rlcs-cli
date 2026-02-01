@@ -11,6 +11,7 @@ var cli struct {
 	Version kong.VersionFlag `name:"version" short:"v" help:"Show version and exit."`
 
 	ListTournaments ListTournamentsCmd `cmd:"" name:"list-tournaments" help:"List all tournaments for RLCS."`
+	GetBrackets     GetBracketsCmd     `cmd:"" name:"get-brackets" help:"Get tournament brackets for a specific tournament."`
 }
 
 func Execute(version string) {

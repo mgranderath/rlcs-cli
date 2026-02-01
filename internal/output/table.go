@@ -13,12 +13,13 @@ type TableFormatter struct{}
 
 func (f *TableFormatter) Format(w io.Writer, tournaments []domain.Tournament) error {
 	// Write header
-	fmt.Fprintln(w, "┌─────────────────────────────────┬──────────────────┬─────────────┬────────┬───────┬────────────────────┐")
-	fmt.Fprintln(w, "│ Name                            │ Dates            │ Prize Pool  │ Region │ Teams │ Type               │")
-	fmt.Fprintln(w, "├─────────────────────────────────┼──────────────────┼─────────────┼────────┼───────┼────────────────────┤")
+	fmt.Fprintln(w, "┌────────────────────────────┬───────────────────────────────┬──────────────────┬─────────────┬────────┬───────┬────────────────────┐")
+	fmt.Fprintln(w, "│ ID                         │ Name                          │ Dates            │ Prize Pool  │ Region │ Teams │ Type               │")
+	fmt.Fprintln(w, "├────────────────────────────┼───────────────────────────────┼──────────────────┼─────────────┼────────┼───────┼────────────────────┤")
 
 	for _, t := range tournaments {
-		name := truncate(t.Name, 31)
+		id := truncate(t.ID, 26)
+		name := truncate(t.Name, 29)
 		dates := formatDateRange(t.StartDate, t.EndDate)
 		prizePool := truncate(t.PrizePool, 13)
 		region := string(t.Region)
@@ -28,11 +29,11 @@ func (f *TableFormatter) Format(w io.Writer, tournaments []domain.Tournament) er
 		teams := fmt.Sprintf("%d", t.TeamCount)
 		typ := string(t.Type)
 
-		fmt.Fprintf(w, "│ %-31s │ %-16s │ %-11s │ %-6s │ %-5s │ %-18s │\n",
-			name, dates, prizePool, region, teams, typ)
+		fmt.Fprintf(w, "│ %-26s │ %-29s │ %-16s │ %-11s │ %-6s │ %-5s │ %-18s │\n",
+			id, name, dates, prizePool, region, teams, typ)
 	}
 
-	fmt.Fprintln(w, "└─────────────────────────────────┴──────────────────┴─────────────┴────────┴───────┴────────────────────┘")
+	fmt.Fprintln(w, "└────────────────────────────┴───────────────────────────────┴──────────────────┴─────────────┴────────┴───────┴────────────────────┘")
 	return nil
 }
 

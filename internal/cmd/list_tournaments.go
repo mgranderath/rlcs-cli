@@ -16,6 +16,7 @@ import (
 )
 
 type ListTournamentsCmd struct {
+	Circuit  string        `help:"Circuit/year to fetch tournaments from (e.g., 2025, 2026)" default:""`
 	Region   string        `help:"Filter by region (NA, EU, APAC, SAM, OCE, MENA, SSA)"`
 	Online   bool          `help:"Show only online tournaments"`
 	Major    bool          `help:"Show only major tournaments (empty region/grouping)"`
@@ -83,7 +84,13 @@ func (l *ListTournamentsCmd) Run(ctx *Context) error {
 		return fmt.Errorf("cannot use --upcoming and --past together (they are mutually exclusive)")
 	}
 
-	url := "https://api.blast.tv/v2/circuits/2026/tournaments?game=rl"
+	// Determine circuit - use provided value or default to current year
+	circuit := l.Circuit
+	if circuit == "" {
+		circuit = fmt.Sprintf("%d", time.Now().Year())
+	}
+
+	url := fmt.Sprintf("https://api.blast.tv/v2/circuits/%s/tournaments?game=rl", circuit)
 
 	client := &http.Client{
 		Timeout: 10 * time.Second,
