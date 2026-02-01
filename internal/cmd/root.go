@@ -7,13 +7,16 @@ type Context struct {
 }
 
 var cli struct {
-	Debug bool `help:"Enable debug mode."`
+	Debug   bool             `help:"Enable debug mode."`
+	Version kong.VersionFlag `name:"version" short:"v" help:"Show version and exit."`
 
 	ListTournaments ListTournamentsCmd `cmd:"" name:"list-tournaments" help:"List all tournaments for RLCS."`
 }
 
-func Execute() {
-	ctx := kong.Parse(&cli)
+func Execute(version string) {
+	ctx := kong.Parse(&cli, kong.Vars{
+		"version": version,
+	})
 	err := ctx.Run(&Context{Debug: cli.Debug})
 	ctx.FatalIfErrorf(err)
 }
