@@ -106,12 +106,18 @@ func TestMatchesYAMLFormatter_Format(t *testing.T) {
 			}
 
 			// Verify proper indentation (2 spaces for yaml.v3 with SetIndent(2))
-			lines := strings.Split(output, "\n")
-			for _, line := range lines {
-				if strings.HasPrefix(line, "  ") && !strings.HasPrefix(line, "    ") {
-					// Found a line with 2-space indentation
-					break
+			// Skip for empty matches since "[]" has no indentation
+			if tt.name != "empty matches" {
+				lines := strings.Split(output, "\n")
+				foundTwoSpaceIndent := false
+				for _, line := range lines {
+					if strings.HasPrefix(line, "  ") && !strings.HasPrefix(line, "    ") {
+						// Found a line with 2-space indentation
+						foundTwoSpaceIndent = true
+						break
+					}
 				}
+				assert.True(t, foundTwoSpaceIndent, "Expected to find 2-space indentation in YAML output")
 			}
 		})
 	}
@@ -126,5 +132,5 @@ func TestMatchesYAMLFormatter_FormatEmpty(t *testing.T) {
 	require.NoError(t, err)
 	output := buf.String()
 	// Empty array encodes as "[]" in YAML
-	assert.True(t, strings.TrimSpace(output) == "[]" || output == "")
+	assert.Equal(t, "[]\n", output)
 }

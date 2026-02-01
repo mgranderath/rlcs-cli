@@ -107,7 +107,7 @@ func toDomainMatchMapFromResponse(api blast.MatchResponseMap) (domain.MatchMap, 
 
 // inferMatchStatus determines if a match is completed, live, or upcoming based on map timestamps
 // - Completed: at least one map has started and all maps that have started have ended
-// - Live: at least one map has started but not all have ended
+// - Live: at least one map has started but not all started maps have ended
 // - Upcoming: no maps have started
 func inferMatchStatus(maps []blast.MatchResponseMap) (isCompleted bool, isLive bool) {
 	if len(maps) == 0 {
@@ -115,25 +115,23 @@ func inferMatchStatus(maps []blast.MatchResponseMap) (isCompleted bool, isLive b
 	}
 
 	hasStarted := false
-	allEnded := true
+	allStartedMapsEnded := true
 
 	for _, m := range maps {
 		if m.StartedAt != "" {
 			hasStarted = true
 			if m.EndedAt == "" {
-				allEnded = false
+				allStartedMapsEnded = false
 			}
-		} else {
-			// Map hasn't started, so match isn't complete yet
-			allEnded = false
 		}
+		// Note: we ignore maps that haven't started yet - they don't affect completion status
 	}
 
 	if !hasStarted {
 		return false, false // Upcoming
 	}
 
-	if allEnded {
+	if allStartedMapsEnded {
 		return true, false // Completed
 	}
 

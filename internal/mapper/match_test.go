@@ -421,6 +421,17 @@ func TestToDomainMatchMapFromResponse(t *testing.T) {
 			},
 			expectError: true,
 		},
+		{
+			name: "invalid ended time",
+			api: blast.MatchResponseMap{
+				ID:          "map-5",
+				Name:        "Invalid",
+				ScheduledAt: "2026-01-15T12:00:00.000Z",
+				StartedAt:   "2026-01-15T12:05:00.000Z",
+				EndedAt:     "invalid",
+			},
+			expectError: true,
+		},
 	}
 
 	for _, tt := range tests {
@@ -515,6 +526,32 @@ func TestInferMatchStatus(t *testing.T) {
 				{StartedAt: "", EndedAt: ""},
 			},
 			isCompleted: false,
+			isLive:      false,
+		},
+		{
+			name: "completed - BO7 ended early (4-0) with unplayed maps",
+			maps: []blast.MatchResponseMap{
+				{StartedAt: "2026-01-15T12:00:00.000Z", EndedAt: "2026-01-15T12:10:00.000Z"},
+				{StartedAt: "2026-01-15T12:15:00.000Z", EndedAt: "2026-01-15T12:25:00.000Z"},
+				{StartedAt: "2026-01-15T12:30:00.000Z", EndedAt: "2026-01-15T12:40:00.000Z"},
+				{StartedAt: "2026-01-15T12:45:00.000Z", EndedAt: "2026-01-15T12:55:00.000Z"},
+				{StartedAt: "", EndedAt: ""}, // Unplayed maps should not affect completion
+				{StartedAt: "", EndedAt: ""},
+				{StartedAt: "", EndedAt: ""},
+			},
+			isCompleted: true,
+			isLive:      false,
+		},
+		{
+			name: "completed - some maps started and ended, others never started",
+			maps: []blast.MatchResponseMap{
+				{StartedAt: "2026-01-15T12:00:00.000Z", EndedAt: "2026-01-15T12:10:00.000Z"},
+				{StartedAt: "2026-01-15T12:15:00.000Z", EndedAt: "2026-01-15T12:25:00.000Z"},
+				{StartedAt: "2026-01-15T12:30:00.000Z", EndedAt: "2026-01-15T12:40:00.000Z"},
+				{StartedAt: "", EndedAt: ""},
+				{StartedAt: "", EndedAt: ""},
+			},
+			isCompleted: true,
 			isLive:      false,
 		},
 	}
