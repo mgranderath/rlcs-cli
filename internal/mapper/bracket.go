@@ -119,14 +119,23 @@ func ToDomainMap(api blast.Map) (domain.MatchMap, error) {
 		return domain.MatchMap{}, fmt.Errorf("failed to parse scheduled start time: %w", err)
 	}
 
-	actualStart, err := time.Parse(timeFormat, api.ActualStartTime)
-	if err != nil {
-		return domain.MatchMap{}, fmt.Errorf("failed to parse actual start time: %w", err)
+	// Handle empty time strings for fields that may not be set (e.g., upcoming matches)
+	var actualStart time.Time
+	if api.ActualStartTime != "" {
+		parsedTime, err := time.Parse(timeFormat, api.ActualStartTime)
+		if err != nil {
+			return domain.MatchMap{}, fmt.Errorf("failed to parse actual start time: %w", err)
+		}
+		actualStart = parsedTime
 	}
 
-	matchEnded, err := time.Parse(timeFormat, api.MatchEndedTime)
-	if err != nil {
-		return domain.MatchMap{}, fmt.Errorf("failed to parse match ended time: %w", err)
+	var matchEnded time.Time
+	if api.MatchEndedTime != "" {
+		parsedTime, err := time.Parse(timeFormat, api.MatchEndedTime)
+		if err != nil {
+			return domain.MatchMap{}, fmt.Errorf("failed to parse match ended time: %w", err)
+		}
+		matchEnded = parsedTime
 	}
 
 	return domain.MatchMap{

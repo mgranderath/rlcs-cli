@@ -182,7 +182,7 @@ func TestGetBracketsCmd_Run_HTTPMock(t *testing.T) {
 
 		cmd := &GetBracketsCmd{
 			TournamentID: "test-tournament-id",
-			Output:       output.FormatTable,
+			Output:       output.BracketsFormatTable,
 		}
 		ctx := &Context{Debug: false}
 
@@ -198,7 +198,7 @@ func TestGetBracketsCmd_Run_HTTPMock(t *testing.T) {
 
 		cmd := &GetBracketsCmd{
 			TournamentID: "invalid-id",
-			Output:       output.FormatTable,
+			Output:       output.BracketsFormatTable,
 		}
 		ctx := &Context{Debug: false}
 
@@ -214,7 +214,7 @@ func TestGetBracketsCmd_Run_HTTPMock(t *testing.T) {
 
 		cmd := &GetBracketsCmd{
 			TournamentID: "test-id",
-			Output:       output.FormatTable,
+			Output:       output.BracketsFormatTable,
 		}
 		ctx := &Context{Debug: false}
 
@@ -231,7 +231,7 @@ func TestGetBracketsCmd_Run_HTTPMock(t *testing.T) {
 
 		cmd := &GetBracketsCmd{
 			TournamentID: "empty-tournament",
-			Output:       output.FormatTable,
+			Output:       output.BracketsFormatTable,
 		}
 		ctx := &Context{Debug: false}
 

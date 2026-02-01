@@ -227,6 +227,17 @@ func TestToDomainMap(t *testing.T) {
 			},
 			expectError: true,
 		},
+		{
+			name: "map with empty actual and ended times",
+			api: blast.Map{
+				UUID:               "map-2",
+				ScheduledStartTime: "2026-01-15T12:00:00.000Z",
+				ActualStartTime:    "",
+				MatchEndedTime:     "",
+				Name:               "Stadium_P",
+			},
+			expectError: false,
+		},
 	}
 
 	for _, tt := range tests {

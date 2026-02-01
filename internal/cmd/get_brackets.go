@@ -17,13 +17,13 @@ import (
 
 // GetBracketsCmd retrieves tournament brackets
 type GetBracketsCmd struct {
-	TournamentID  string        `arg:"" help:"Tournament ID (UUID)"`
-	CompletedOnly bool          `help:"Show only completed matches"`
-	LiveOnly      bool          `help:"Show only live matches"`
-	UpcomingOnly  bool          `help:"Show only upcoming matches"`
-	Team          string        `help:"Filter by team name (case-insensitive partial match)"`
-	MatchType     string        `help:"Filter by match type (e.g., BO5, BO7)"`
-	Output        output.Format `help:"Output format (table, json, yaml)" default:"table" short:"o"`
+	TournamentID  string                `arg:"" help:"Tournament ID (UUID)"`
+	CompletedOnly bool                  `help:"Show only completed matches"`
+	LiveOnly      bool                  `help:"Show only live matches"`
+	UpcomingOnly  bool                  `help:"Show only upcoming matches"`
+	Team          string                `help:"Filter by team name (case-insensitive partial match)"`
+	MatchType     string                `help:"Filter by match type (e.g., BO5, BO7)"`
+	Output        output.BracketsFormat `help:"Output format (table, json, yaml)" default:"table" short:"o"`
 }
 
 func (g *GetBracketsCmd) matchesFilters(match domain.Match) bool {
@@ -117,17 +117,18 @@ func (g *GetBracketsCmd) Run(ctx *Context) error {
 	// Apply filters to matches within each bracket
 	brackets = g.applyFilters(brackets)
 
-	// Output based on format
-	switch g.Output {
-	case output.FormatJSON:
-		return g.outputJSON(brackets)
-	case output.FormatYAML:
-		return g.outputYAML(brackets)
-	case output.FormatTable:
-		return g.outputTable(brackets)
-	default:
-		return fmt.Errorf("unsupported output format: %s", g.Output)
+	// Get the appropriate formatter
+	formatter, err := output.GetBracketsFormatter(g.Output)
+	if err != nil {
+		return fmt.Errorf("failed to get formatter: %w", err)
 	}
+
+	// Output using the selected formatter
+	if err := formatter.Format(os.Stdout, brackets); err != nil {
+		return fmt.Errorf("failed to format output: %w", err)
+	}
+
+	return nil
 }
 
 func (g *GetBracketsCmd) applyFilters(brackets []domain.Bracket) []domain.Bracket {
@@ -151,21 +152,4 @@ func (g *GetBracketsCmd) applyFilters(brackets []domain.Bracket) []domain.Bracke
 		}
 	}
 	return result
-}
-
-func (g *GetBracketsCmd) outputJSON(brackets []domain.Bracket) error {
-	encoder := json.NewEncoder(os.Stdout)
-	encoder.SetIndent("", "  ")
-	return encoder.Encode(brackets)
-}
-
-func (g *GetBracketsCmd) outputYAML(brackets []domain.Bracket) error {
-	// For simplicity, we'll output as JSON for now
-	// YAML support would require adding the yaml package
-	return g.outputJSON(brackets)
-}
-
-func (g *GetBracketsCmd) outputTable(brackets []domain.Bracket) error {
-	formatter := &output.BracketsTableFormatter{}
-	return formatter.Format(os.Stdout, brackets)
 }

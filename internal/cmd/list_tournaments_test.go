@@ -161,7 +161,7 @@ func TestListTournamentsCmd_Run_HTTPMock(t *testing.T) {
 	defer gock.Off()
 
 	t.Run("successful fetch with default circuit", func(t *testing.T) {
-		// Mock the API response
+		// Mock the API response - use fixed time for deterministic testing
 		gock.New("https://api.blast.tv").
 			Get("/v2/circuits/2026/tournaments").
 			MatchParam("game", "rl").
@@ -178,7 +178,13 @@ func TestListTournamentsCmd_Run_HTTPMock(t *testing.T) {
 				},
 			})
 
-		cmd := &ListTournamentsCmd{Output: "table"}
+		// Use fixed time injection to make test deterministic
+		cmd := &ListTournamentsCmd{
+			Output: "table",
+			now: func() time.Time {
+				return time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
+			},
+		}
 		ctx := &Context{Debug: false}
 
 		err := cmd.Run(ctx)
@@ -216,7 +222,13 @@ func TestListTournamentsCmd_Run_HTTPMock(t *testing.T) {
 			Get("/v2/circuits/2026/tournaments").
 			Reply(404)
 
-		cmd := &ListTournamentsCmd{Output: "table"}
+		// Use fixed time injection to make test deterministic
+		cmd := &ListTournamentsCmd{
+			Output: "table",
+			now: func() time.Time {
+				return time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
+			},
+		}
 		ctx := &Context{Debug: false}
 
 		err := cmd.Run(ctx)
@@ -229,7 +241,13 @@ func TestListTournamentsCmd_Run_HTTPMock(t *testing.T) {
 			Get("/v2/circuits/2026/tournaments").
 			Reply(500)
 
-		cmd := &ListTournamentsCmd{Output: "table"}
+		// Use fixed time injection to make test deterministic
+		cmd := &ListTournamentsCmd{
+			Output: "table",
+			now: func() time.Time {
+				return time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
+			},
+		}
 		ctx := &Context{Debug: false}
 
 		err := cmd.Run(ctx)
