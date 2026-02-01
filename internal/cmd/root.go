@@ -13,6 +13,7 @@ var cli struct {
 	ListTournaments ListTournamentsCmd `cmd:"" name:"list-tournaments" help:"List all tournaments for RLCS."`
 	GetBrackets     GetBracketsCmd     `cmd:"" name:"get-brackets" help:"Get tournament brackets for a specific tournament."`
 	GetMatches      GetMatchesCmd      `cmd:"" name:"get-matches" help:"Get all matches for a specific tournament."`
+	GetMatch        GetMatchCmd        `cmd:"" name:"get-match" help:"Get detailed information for a specific match."`
 }
 
 func Execute(version string) {

@@ -105,6 +105,12 @@ func toDomainMatchMapFromResponse(api blast.MatchResponseMap) (domain.MatchMap, 
 	}, nil
 }
 
+// ToDomainMatchFromDetailResponse converts a single API match response to domain match
+// Used for the detailed match endpoint which returns a single match object
+func ToDomainMatchFromDetailResponse(api blast.MatchResponse) (domain.Match, error) {
+	return toDomainMatchFromResponse(api)
+}
+
 // inferMatchStatus determines if a match is completed, live, or upcoming based on map timestamps
 // - Completed: at least one map has started and all maps that have started have ended
 // - Live: at least one map has started but not all started maps have ended

@@ -74,7 +74,7 @@ func (g *GetMatchesCmd) Run(ctx *Context) error {
 		return fmt.Errorf("cannot use multiple status filters together (completed-only, live-only, upcoming-only are mutually exclusive)")
 	}
 
-	url := fmt.Sprintf("https://api.blast.tv/v2/games/rl/tournaments/%s/matches", g.TournamentID)
+	url := fmt.Sprintf("%s/games/rl/tournaments/%s/matches", blast.BaseURL, g.TournamentID)
 
 	client := &http.Client{
 		Timeout: 10 * time.Second,
