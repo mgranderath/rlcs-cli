@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/mgranderath/rlcs-cli/internal/domain"
 )
@@ -38,10 +39,11 @@ func (f *TableFormatter) Format(w io.Writer, tournaments []domain.Tournament) er
 }
 
 func truncate(s string, maxLen int) string {
-	if len(s) <= maxLen {
+	if utf8.RuneCountInString(s) <= maxLen {
 		return s
 	}
-	return s[:maxLen-3] + "..."
+	runes := []rune(s)
+	return string(runes[:maxLen-3]) + "..."
 }
 
 func formatDateRange(start, end interface{}) string {

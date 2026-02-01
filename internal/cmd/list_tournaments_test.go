@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -218,15 +219,18 @@ func TestListTournamentsCmd_Run_HTTPMock(t *testing.T) {
 	})
 
 	t.Run("404 response", func(t *testing.T) {
+		// Use fixed time injection to make test deterministic
+		fixedTime := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
+		circuit := fmt.Sprintf("%d", fixedTime.Year())
+
 		gock.New("https://api.blast.tv").
-			Get("/v2/circuits/2026/tournaments").
+			Get(fmt.Sprintf("/v2/circuits/%s/tournaments", circuit)).
 			Reply(404)
 
-		// Use fixed time injection to make test deterministic
 		cmd := &ListTournamentsCmd{
 			Output: "table",
 			now: func() time.Time {
-				return time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
+				return fixedTime
 			},
 		}
 		ctx := &Context{Debug: false}
@@ -234,18 +238,22 @@ func TestListTournamentsCmd_Run_HTTPMock(t *testing.T) {
 		err := cmd.Run(ctx)
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "unexpected status code: 404")
+		assert.True(t, gock.IsDone())
 	})
 
 	t.Run("500 response", func(t *testing.T) {
+		// Use fixed time injection to make test deterministic
+		fixedTime := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
+		circuit := fmt.Sprintf("%d", fixedTime.Year())
+
 		gock.New("https://api.blast.tv").
-			Get("/v2/circuits/2026/tournaments").
+			Get(fmt.Sprintf("/v2/circuits/%s/tournaments", circuit)).
 			Reply(500)
 
-		// Use fixed time injection to make test deterministic
 		cmd := &ListTournamentsCmd{
 			Output: "table",
 			now: func() time.Time {
-				return time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
+				return fixedTime
 			},
 		}
 		ctx := &Context{Debug: false}
@@ -253,6 +261,7 @@ func TestListTournamentsCmd_Run_HTTPMock(t *testing.T) {
 		err := cmd.Run(ctx)
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "unexpected status code: 500")
+		assert.True(t, gock.IsDone())
 	})
 }
 

@@ -200,6 +200,8 @@ func TestBracketsTableFormatter_LongNames(t *testing.T) {
 	// Verify table structure is maintained even with long names
 	lines := strings.Split(output, "\n")
 	assert.True(t, len(lines) > 5)
-	// Check that truncation happened
+	// Check that truncation happened in match fields (teams and match name)
+	assert.Contains(t, output, "...")
+	// Verify the bracket header contains the name (not truncated)
 	assert.Contains(t, output, "This is an extremely long bracket name")
 }
