@@ -21,7 +21,7 @@ type GetMatchCmd struct {
 }
 
 func (g *GetMatchCmd) Run(ctx *Context) error {
-	url := fmt.Sprintf("https://api.blast.tv/v2/matches/%s/detailed", g.MatchID)
+	url := fmt.Sprintf("%s/matches/%s/detailed", blast.BaseURL, g.MatchID)
 
 	client := &http.Client{
 		Timeout: 10 * time.Second,

@@ -98,7 +98,7 @@ func (l *ListTournamentsCmd) Run(ctx *Context) error {
 		circuit = fmt.Sprintf("%d", l.now().Year())
 	}
 
-	url := fmt.Sprintf("https://api.blast.tv/v2/circuits/%s/tournaments?game=rl", circuit)
+	url := fmt.Sprintf("%s/circuits/%s/tournaments?game=rl", blast.BaseURL, circuit)
 
 	client := &http.Client{
 		Timeout: 10 * time.Second,
