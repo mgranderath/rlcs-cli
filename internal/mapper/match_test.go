@@ -452,6 +452,190 @@ func TestToDomainMatchMapFromResponse(t *testing.T) {
 	}
 }
 
+func TestToDomainMatchFromDetailResponse(t *testing.T) {
+	tests := []struct {
+		name        string
+		api         blast.MatchResponse
+		expectError bool
+		checkFields func(t *testing.T, result domain.Match)
+	}{
+		{
+			name: "detailed match with full tournament context",
+			api: blast.MatchResponse{
+				ID:          "667d39fa-65cb-46c1-b939-3554cdbd5cc0",
+				Name:        "Quarter Final 1",
+				ScheduledAt: "2026-02-01T10:00:00.000Z",
+				Type:        "BO7",
+				Index:       4,
+				ExternalID:  "",
+				Circuit: blast.Circuit{
+					GameID: "rl",
+					ID:     "2026",
+					Name:   "2026",
+				},
+				Tournament: blast.Tournament{
+					ID:        "rlcs-open-3-apac-2026",
+					Name:      "RLCS Open 3 APAC 2026",
+					StartDate: "2026-01-30",
+					EndDate:   "2026-02-01",
+					PrizePool: "$29,700",
+				},
+				Stage: blast.Stage{
+					ID:            "bdc700c8-cddc-44fd-8f59-faa3d4fb696a",
+					Name:          "Playoffs",
+					Format:        "afl-final-eight",
+					NumberOfTeams: nil,
+					Metadata:      nil,
+					StartDate:     "2026-01-31T16:00:00",
+					EndDate:       "2026-02-01T20:00:00",
+					Index:         2,
+				},
+				TeamA: blast.MatchResponseTeam{
+					ID:          "49737583-e29b-4056-a706-41ac13db0d39",
+					Name:        "God Speed",
+					ShortName:   "godspeed",
+					Nationality: "MY",
+					ExternalID:  nil,
+					Metadata:    nil,
+				},
+				TeamB: blast.MatchResponseTeam{
+					ID:          "20607998-f78d-4a56-b4ba-54078cc29752",
+					Name:        "Ground Zero Gaming",
+					ShortName:   "gzg",
+					Nationality: "AU",
+					ExternalID:  nil,
+					Metadata:    nil,
+				},
+				TeamAScore: 1,
+				TeamBScore: 3,
+				Maps:       []blast.MatchResponseMap{},
+				Metadata:   blast.MatchResponseMetadata{},
+			},
+			expectError: false,
+			checkFields: func(t *testing.T, result domain.Match) {
+				assert.Equal(t, "667d39fa-65cb-46c1-b939-3554cdbd5cc0", result.UUID)
+				assert.Equal(t, "Quarter Final 1", result.Name)
+				assert.Equal(t, "BO7", result.Type)
+				assert.Equal(t, 4, result.Index)
+				assert.Equal(t, "God Speed", result.TeamA.Name)
+				assert.Equal(t, "godspeed", result.TeamA.Shorthand)
+				assert.Equal(t, "MY", result.TeamA.Location)
+				assert.Equal(t, "Ground Zero Gaming", result.TeamB.Name)
+				assert.Equal(t, "gzg", result.TeamB.Shorthand)
+				assert.Equal(t, "AU", result.TeamB.Location)
+				assert.Equal(t, 1, result.TeamAScore)
+				assert.Equal(t, 3, result.TeamBScore)
+				assert.False(t, result.IsCompleted)
+				assert.False(t, result.IsLive)
+			},
+		},
+		{
+			name: "detailed match with null external IDs and metadata",
+			api: blast.MatchResponse{
+				ID:          "test-match-id",
+				Name:        "Test Match",
+				ScheduledAt: "2026-02-01T10:00:00.000Z",
+				Type:        "BO5",
+				ExternalID:  "",
+				TeamA: blast.MatchResponseTeam{
+					ID:         "team-a",
+					Name:       "Team A",
+					ExternalID: nil,
+					Metadata:   nil,
+				},
+				TeamB: blast.MatchResponseTeam{
+					ID:         "team-b",
+					Name:       "Team B",
+					ExternalID: nil,
+					Metadata:   nil,
+				},
+				Maps:     []blast.MatchResponseMap{},
+				Metadata: blast.MatchResponseMetadata{},
+			},
+			expectError: false,
+			checkFields: func(t *testing.T, result domain.Match) {
+				assert.Equal(t, "", result.ExternalID)
+				assert.Equal(t, "Team A", result.TeamA.Name)
+				assert.Equal(t, "Team B", result.TeamB.Name)
+			},
+		},
+		{
+			name: "detailed match with maps",
+			api: blast.MatchResponse{
+				ID:          "match-with-maps",
+				Name:        "Final",
+				ScheduledAt: "2026-02-01T10:00:00.000Z",
+				Type:        "BO7",
+				TeamA: blast.MatchResponseTeam{
+					ID:   "team-a",
+					Name: "Team A",
+				},
+				TeamB: blast.MatchResponseTeam{
+					ID:   "team-b",
+					Name: "Team B",
+				},
+				TeamAScore: 4,
+				TeamBScore: 2,
+				Maps: []blast.MatchResponseMap{
+					{
+						ID:          "map-1",
+						Name:        "Stadium_P",
+						ScheduledAt: "2026-02-01T10:00:00.000Z",
+						StartedAt:   "2026-02-01T10:05:00.000Z",
+						EndedAt:     "2026-02-01T10:15:00.000Z",
+						TeamAScore:  3,
+						TeamBScore:  2,
+					},
+				},
+				Metadata: blast.MatchResponseMetadata{
+					T:                 "rl_match",
+					TeamBlueTeamID:    "team-a",
+					TeamOrangeTeamID:  "team-b",
+					ExternalStreamURL: "https://example.com/stream",
+				},
+			},
+			expectError: false,
+			checkFields: func(t *testing.T, result domain.Match) {
+				assert.Equal(t, "match-with-maps", result.UUID)
+				assert.Equal(t, 4, result.TeamAScore)
+				assert.Equal(t, 2, result.TeamBScore)
+				assert.Len(t, result.Maps, 1)
+				assert.True(t, result.IsCompleted)
+				assert.False(t, result.IsLive)
+			},
+		},
+		{
+			name: "invalid scheduled time",
+			api: blast.MatchResponse{
+				ID:          "invalid",
+				Name:        "Invalid",
+				ScheduledAt: "invalid-time",
+				Type:        "BO5",
+				TeamA:       blast.MatchResponseTeam{ID: "a", Name: "A"},
+				TeamB:       blast.MatchResponseTeam{ID: "b", Name: "B"},
+				Maps:        []blast.MatchResponseMap{},
+			},
+			expectError: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := ToDomainMatchFromDetailResponse(tt.api)
+
+			if tt.expectError {
+				assert.Error(t, err)
+				return
+			}
+
+			require.NoError(t, err)
+			if tt.checkFields != nil {
+				tt.checkFields(t, result)
+			}
+		})
+	}
+}
+
 func TestInferMatchStatus(t *testing.T) {
 	tests := []struct {
 		name        string
