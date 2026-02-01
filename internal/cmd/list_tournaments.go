@@ -16,6 +16,7 @@ import (
 )
 
 type ListTournamentsCmd struct {
+	Circuit  string        `help:"Circuit/year to fetch tournaments from (e.g., 2025, 2026)" default:""`
 	Region   string        `help:"Filter by region (NA, EU, APAC, SAM, OCE, MENA, SSA)"`
 	Online   bool          `help:"Show only online tournaments"`
 	Major    bool          `help:"Show only major tournaments (empty region/grouping)"`
@@ -25,6 +26,9 @@ type ListTournamentsCmd struct {
 	Past     bool          `help:"Show only past tournaments (end date < today)"`
 	MinTeams int           `help:"Minimum number of teams"`
 	Output   output.Format `help:"Output format (table, json, csv, yaml)" default:"table" short:"o"`
+
+	// now is a function that returns the current time, can be overridden for testing
+	now func() time.Time `kong:"-"`
 }
 
 func (l *ListTournamentsCmd) matchesFilters(t domain.Tournament, today time.Time) bool {
@@ -83,7 +87,18 @@ func (l *ListTournamentsCmd) Run(ctx *Context) error {
 		return fmt.Errorf("cannot use --upcoming and --past together (they are mutually exclusive)")
 	}
 
-	url := "https://api.blast.tv/v2/circuits/2026/tournaments?game=rl"
+	// Initialize now function if not set (allows for dependency injection in tests)
+	if l.now == nil {
+		l.now = time.Now
+	}
+
+	// Determine circuit - use provided value or default to current year
+	circuit := l.Circuit
+	if circuit == "" {
+		circuit = fmt.Sprintf("%d", l.now().Year())
+	}
+
+	url := fmt.Sprintf("https://api.blast.tv/v2/circuits/%s/tournaments?game=rl", circuit)
 
 	client := &http.Client{
 		Timeout: 10 * time.Second,
@@ -123,7 +138,7 @@ func (l *ListTournamentsCmd) Run(ctx *Context) error {
 	}
 
 	// Apply filters
-	today := time.Now().Truncate(24 * time.Hour)
+	today := l.now().Truncate(24 * time.Hour)
 	var filtered []domain.Tournament
 	for _, t := range tournaments {
 		if l.matchesFilters(t, today) {
