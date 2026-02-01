@@ -4,6 +4,8 @@ import (
 	"github.com/mgranderath/rlcs-cli/internal/cmd"
 )
 
+var version = "dev"
+
 func main() {
-	cmd.Execute()
+	cmd.Execute(version)
 }
