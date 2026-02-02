@@ -6,14 +6,25 @@ type Context struct {
 	Debug bool
 }
 
+// TournamentsCmd groups all tournament-related commands
+type TournamentsCmd struct {
+	List     ListTournamentsCmd     `cmd:"" name:"list" help:"List all tournaments."`
+	Matches  TournamentsMatchesCmd  `cmd:"" name:"matches" help:"List matches across tournaments."`
+	Brackets TournamentsBracketsCmd `cmd:"" name:"brackets" help:"Get brackets for a specific tournament."`
+}
+
+// MatchesCmd groups all match-related commands
+type MatchesCmd struct {
+	List MatchesListCmd `cmd:"" name:"list" help:"List matches for a specific tournament."`
+	Get  MatchesGetCmd  `cmd:"" name:"get" help:"Get detailed information for a specific match."`
+}
+
 var cli struct {
 	Debug   bool             `help:"Enable debug mode."`
 	Version kong.VersionFlag `name:"version" short:"v" help:"Show version and exit."`
 
-	ListTournaments ListTournamentsCmd `cmd:"" name:"list-tournaments" help:"List all tournaments for RLCS."`
-	GetBrackets     GetBracketsCmd     `cmd:"" name:"get-brackets" help:"Get tournament brackets for a specific tournament."`
-	GetMatches      GetMatchesCmd      `cmd:"" name:"get-matches" help:"Get all matches for a specific tournament."`
-	GetMatch        GetMatchCmd        `cmd:"" name:"get-match" help:"Get detailed information for a specific match."`
+	Tournaments TournamentsCmd `cmd:"" name:"tournaments" help:"Tournament-related commands."`
+	Matches     MatchesCmd     `cmd:"" name:"matches" help:"Match-related commands."`
 }
 
 func Execute(version string) {

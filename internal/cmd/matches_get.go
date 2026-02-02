@@ -14,13 +14,13 @@ import (
 	"github.com/mgranderath/rlcs-cli/internal/output"
 )
 
-// GetMatchCmd retrieves detailed information for a specific match
-type GetMatchCmd struct {
+// MatchesGetCmd retrieves detailed information for a specific match
+type MatchesGetCmd struct {
 	MatchID string               `arg:"" help:"Match ID"`
 	Output  output.MatchesFormat `help:"Output format (table, json, yaml)" default:"table" short:"o"`
 }
 
-func (g *GetMatchCmd) Run(ctx *Context) error {
+func (g *MatchesGetCmd) Run(ctx *Context) error {
 	url := fmt.Sprintf("%s/matches/%s/detailed", blast.BaseURL, g.MatchID)
 
 	client := &http.Client{

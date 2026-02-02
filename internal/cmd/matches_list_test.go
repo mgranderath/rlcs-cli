@@ -9,142 +9,142 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGetMatchesCmd_matchesFilters(t *testing.T) {
+func TestMatchesListCmd_matchesFilters(t *testing.T) {
 	tests := []struct {
 		name     string
-		cmd      GetMatchesCmd
+		cmd      MatchesListCmd
 		match    domain.Match
 		expected bool
 	}{
 		{
 			name:     "no filters - match all",
-			cmd:      GetMatchesCmd{},
+			cmd:      MatchesListCmd{},
 			match:    domain.Match{IsCompleted: true, IsLive: false},
 			expected: true,
 		},
 		{
 			name:     "completed only - match",
-			cmd:      GetMatchesCmd{CompletedOnly: true},
+			cmd:      MatchesListCmd{CompletedOnly: true},
 			match:    domain.Match{IsCompleted: true, IsLive: false},
 			expected: true,
 		},
 		{
 			name:     "completed only - no match",
-			cmd:      GetMatchesCmd{CompletedOnly: true},
+			cmd:      MatchesListCmd{CompletedOnly: true},
 			match:    domain.Match{IsCompleted: false, IsLive: true},
 			expected: false,
 		},
 		{
 			name:     "live only - match",
-			cmd:      GetMatchesCmd{LiveOnly: true},
+			cmd:      MatchesListCmd{LiveOnly: true},
 			match:    domain.Match{IsLive: true, IsCompleted: false},
 			expected: true,
 		},
 		{
 			name:     "live only - no match",
-			cmd:      GetMatchesCmd{LiveOnly: true},
+			cmd:      MatchesListCmd{LiveOnly: true},
 			match:    domain.Match{IsLive: false, IsCompleted: true},
 			expected: false,
 		},
 		{
 			name:     "upcoming only - match",
-			cmd:      GetMatchesCmd{UpcomingOnly: true},
+			cmd:      MatchesListCmd{UpcomingOnly: true},
 			match:    domain.Match{IsLive: false, IsCompleted: false},
 			expected: true,
 		},
 		{
 			name:     "upcoming only - no match (completed)",
-			cmd:      GetMatchesCmd{UpcomingOnly: true},
+			cmd:      MatchesListCmd{UpcomingOnly: true},
 			match:    domain.Match{IsLive: false, IsCompleted: true},
 			expected: false,
 		},
 		{
 			name:     "upcoming only - no match (live)",
-			cmd:      GetMatchesCmd{UpcomingOnly: true},
+			cmd:      MatchesListCmd{UpcomingOnly: true},
 			match:    domain.Match{IsLive: true, IsCompleted: false},
 			expected: false,
 		},
 		{
 			name:     "team filter - match team A by name",
-			cmd:      GetMatchesCmd{Team: "Vitality"},
+			cmd:      MatchesListCmd{Team: "Vitality"},
 			match:    domain.Match{TeamA: domain.MatchTeam{Name: "Vitality"}, TeamB: domain.MatchTeam{Name: "KC"}},
 			expected: true,
 		},
 		{
 			name:     "team filter - match team B by name",
-			cmd:      GetMatchesCmd{Team: "KC"},
+			cmd:      MatchesListCmd{Team: "KC"},
 			match:    domain.Match{TeamA: domain.MatchTeam{Name: "Vitality"}, TeamB: domain.MatchTeam{Name: "KC"}},
 			expected: true,
 		},
 		{
 			name:     "team filter - case insensitive name",
-			cmd:      GetMatchesCmd{Team: "vitality"},
+			cmd:      MatchesListCmd{Team: "vitality"},
 			match:    domain.Match{TeamA: domain.MatchTeam{Name: "Vitality"}, TeamB: domain.MatchTeam{Name: "KC"}},
 			expected: true,
 		},
 		{
 			name:     "team filter - match by shorthand",
-			cmd:      GetMatchesCmd{Team: "kc"},
+			cmd:      MatchesListCmd{Team: "kc"},
 			match:    domain.Match{TeamA: domain.MatchTeam{Name: "Vitality", Shorthand: "vitality"}, TeamB: domain.MatchTeam{Name: "Karmine Corp", Shorthand: "kc"}},
 			expected: true,
 		},
 		{
 			name:     "team filter - case insensitive shorthand",
-			cmd:      GetMatchesCmd{Team: "KC"},
+			cmd:      MatchesListCmd{Team: "KC"},
 			match:    domain.Match{TeamA: domain.MatchTeam{Name: "Vitality", Shorthand: "vitality"}, TeamB: domain.MatchTeam{Name: "Karmine Corp", Shorthand: "kc"}},
 			expected: true,
 		},
 		{
 			name:     "team filter - partial match on name",
-			cmd:      GetMatchesCmd{Team: "Vita"},
+			cmd:      MatchesListCmd{Team: "Vita"},
 			match:    domain.Match{TeamA: domain.MatchTeam{Name: "Vitality"}, TeamB: domain.MatchTeam{Name: "KC"}},
 			expected: true,
 		},
 		{
 			name:     "team filter - partial match on shorthand",
-			cmd:      GetMatchesCmd{Team: "vit"},
+			cmd:      MatchesListCmd{Team: "vit"},
 			match:    domain.Match{TeamA: domain.MatchTeam{Name: "Vitality", Shorthand: "vitality"}, TeamB: domain.MatchTeam{Name: "KC", Shorthand: "kc"}},
 			expected: true,
 		},
 		{
 			name:     "team filter - no match",
-			cmd:      GetMatchesCmd{Team: "Furia"},
+			cmd:      MatchesListCmd{Team: "Furia"},
 			match:    domain.Match{TeamA: domain.MatchTeam{Name: "Vitality"}, TeamB: domain.MatchTeam{Name: "KC"}},
 			expected: false,
 		},
 		{
 			name:     "match type filter - match",
-			cmd:      GetMatchesCmd{MatchType: "BO5"},
+			cmd:      MatchesListCmd{MatchType: "BO5"},
 			match:    domain.Match{Type: "BO5"},
 			expected: true,
 		},
 		{
 			name:     "match type filter - case insensitive",
-			cmd:      GetMatchesCmd{MatchType: "bo5"},
+			cmd:      MatchesListCmd{MatchType: "bo5"},
 			match:    domain.Match{Type: "BO5"},
 			expected: true,
 		},
 		{
 			name:     "match type filter - no match",
-			cmd:      GetMatchesCmd{MatchType: "BO7"},
+			cmd:      MatchesListCmd{MatchType: "BO7"},
 			match:    domain.Match{Type: "BO5"},
 			expected: false,
 		},
 		{
 			name:     "multiple filters - all match",
-			cmd:      GetMatchesCmd{CompletedOnly: true, Team: "Vitality"},
+			cmd:      MatchesListCmd{CompletedOnly: true, Team: "Vitality"},
 			match:    domain.Match{IsCompleted: true, TeamA: domain.MatchTeam{Name: "Vitality"}},
 			expected: true,
 		},
 		{
 			name:     "multiple filters - one fails",
-			cmd:      GetMatchesCmd{CompletedOnly: true, Team: "Vitality"},
+			cmd:      MatchesListCmd{CompletedOnly: true, Team: "Vitality"},
 			match:    domain.Match{IsCompleted: false, TeamA: domain.MatchTeam{Name: "Vitality"}},
 			expected: false,
 		},
 		{
 			name:     "team name with special characters",
-			cmd:      GetMatchesCmd{Team: "Gen.G"},
+			cmd:      MatchesListCmd{Team: "Gen.G"},
 			match:    domain.Match{TeamA: domain.MatchTeam{Name: "Gen.G Mobil1 Racing"}, TeamB: domain.MatchTeam{Name: "Other Team"}},
 			expected: true,
 		},
@@ -158,7 +158,7 @@ func TestGetMatchesCmd_matchesFilters(t *testing.T) {
 	}
 }
 
-func TestGetMatchesCmd_Run_HTTPMock(t *testing.T) {
+func TestMatchesListCmd_Run_HTTPMock(t *testing.T) {
 	defer gock.Off()
 
 	t.Run("successful fetch", func(t *testing.T) {
@@ -227,7 +227,7 @@ func TestGetMatchesCmd_Run_HTTPMock(t *testing.T) {
 				},
 			})
 
-		cmd := &GetMatchesCmd{
+		cmd := &MatchesListCmd{
 			TournamentID: "test-tournament-id",
 			Output:       output.MatchesFormatTable,
 		}
@@ -243,7 +243,7 @@ func TestGetMatchesCmd_Run_HTTPMock(t *testing.T) {
 			Get("/v2/games/rl/tournaments/invalid-id/matches").
 			Reply(404)
 
-		cmd := &GetMatchesCmd{
+		cmd := &MatchesListCmd{
 			TournamentID: "invalid-id",
 			Output:       output.MatchesFormatTable,
 		}
@@ -259,7 +259,7 @@ func TestGetMatchesCmd_Run_HTTPMock(t *testing.T) {
 			Get("/v2/games/rl/tournaments/test-id/matches").
 			Reply(500)
 
-		cmd := &GetMatchesCmd{
+		cmd := &MatchesListCmd{
 			TournamentID: "test-id",
 			Output:       output.MatchesFormatTable,
 		}
@@ -276,7 +276,7 @@ func TestGetMatchesCmd_Run_HTTPMock(t *testing.T) {
 			Reply(200).
 			JSON([]map[string]interface{}{})
 
-		cmd := &GetMatchesCmd{
+		cmd := &MatchesListCmd{
 			TournamentID: "empty-tournament",
 			Output:       output.MatchesFormatTable,
 		}
@@ -315,7 +315,7 @@ func TestGetMatchesCmd_Run_HTTPMock(t *testing.T) {
 				},
 			})
 
-		cmd := &GetMatchesCmd{
+		cmd := &MatchesListCmd{
 			TournamentID: "multi-match-tournament",
 			Output:       output.MatchesFormatTable,
 		}
@@ -326,9 +326,9 @@ func TestGetMatchesCmd_Run_HTTPMock(t *testing.T) {
 	})
 }
 
-func TestGetMatchesCmd_Run_Validation(t *testing.T) {
+func TestMatchesListCmd_Run_Validation(t *testing.T) {
 	t.Run("conflicting status filters - completed and live", func(t *testing.T) {
-		cmd := &GetMatchesCmd{
+		cmd := &MatchesListCmd{
 			TournamentID:  "test-id",
 			CompletedOnly: true,
 			LiveOnly:      true,
@@ -341,7 +341,7 @@ func TestGetMatchesCmd_Run_Validation(t *testing.T) {
 	})
 
 	t.Run("conflicting status filters - all three", func(t *testing.T) {
-		cmd := &GetMatchesCmd{
+		cmd := &MatchesListCmd{
 			TournamentID:  "test-id",
 			CompletedOnly: true,
 			LiveOnly:      true,
@@ -354,7 +354,7 @@ func TestGetMatchesCmd_Run_Validation(t *testing.T) {
 	})
 
 	t.Run("conflicting status filters - live and upcoming", func(t *testing.T) {
-		cmd := &GetMatchesCmd{
+		cmd := &MatchesListCmd{
 			TournamentID: "test-id",
 			LiveOnly:     true,
 			UpcomingOnly: true,
@@ -367,8 +367,8 @@ func TestGetMatchesCmd_Run_Validation(t *testing.T) {
 	})
 }
 
-func TestGetMatchesCmd_applyFilters(t *testing.T) {
-	cmd := &GetMatchesCmd{
+func TestMatchesListCmd_applyFilters(t *testing.T) {
+	cmd := &MatchesListCmd{
 		CompletedOnly: true,
 		Team:          "Vitality",
 	}
@@ -404,8 +404,8 @@ func TestGetMatchesCmd_applyFilters(t *testing.T) {
 	assert.Equal(t, "m1", filtered[0].UUID)
 }
 
-func TestGetMatchesCmd_applyFilters_NoFilters(t *testing.T) {
-	cmd := &GetMatchesCmd{} // No filters set
+func TestMatchesListCmd_applyFilters_NoFilters(t *testing.T) {
+	cmd := &MatchesListCmd{} // No filters set
 
 	matches := []domain.Match{
 		{UUID: "m1", Name: "Match 1"},
