@@ -8,6 +8,7 @@ import (
 	"os"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/mgranderath/rlcs-cli/internal/api/blast"
@@ -74,20 +75,49 @@ func (l *TournamentsMatchesCmd) Run(ctx *Context) error {
 		}
 	}
 
-	games := make([]domain.GameListing, 0)
+	// Fetch matches concurrently to avoid N+1 API call problem
+	type tournamentResult struct {
+		tournament domain.Tournament
+		matches    []domain.Match
+		err        error
+	}
+
+	var wg sync.WaitGroup
+	results := make(chan tournamentResult, len(filteredTournaments))
+
 	for _, t := range filteredTournaments {
-		matches, err := l.fetchMatches(t.ID)
-		if err != nil {
-			return err
+		wg.Add(1)
+		go func(tournament domain.Tournament) {
+			defer wg.Done()
+			matches, err := l.fetchMatches(tournament.ID)
+			results <- tournamentResult{
+				tournament: tournament,
+				matches:    matches,
+				err:        err,
+			}
+		}(t)
+	}
+
+	// Close the results channel once all goroutines complete
+	go func() {
+		wg.Wait()
+		close(results)
+	}()
+
+	// Collect all results
+	games := make([]domain.GameListing, 0)
+	for result := range results {
+		if result.err != nil {
+			return result.err
 		}
 
-		for _, match := range matches {
+		for _, match := range result.matches {
 			if !l.matchesStatusFilter(match) {
 				continue
 			}
 			games = append(games, domain.GameListing{
-				TournamentID:   t.ID,
-				TournamentName: t.Name,
+				TournamentID:   result.tournament.ID,
+				TournamentName: result.tournament.Name,
 				Match:          match,
 			})
 		}

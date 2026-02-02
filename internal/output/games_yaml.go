@@ -16,7 +16,6 @@ func (f *GamesYAMLFormatter) Format(w io.Writer, games []domain.GameListing) err
 	encoder.SetIndent(2)
 
 	if err := encoder.Encode(games); err != nil {
-		encoder.Close()
 		return fmt.Errorf("failed to encode games to YAML: %w", err)
 	}
 
