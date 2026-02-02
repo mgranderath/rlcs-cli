@@ -64,8 +64,6 @@ brews:
     homepage: "https://github.com/mgranderath/rlcs-cli"
     description: "CLI tool for RLCS (Rocket League Championship Series)"
     license: "MIT"
-    dependencies:
-      - name: git
     test: |
       system "#{bin}/rlcs-cli", "--version"
     install: |
