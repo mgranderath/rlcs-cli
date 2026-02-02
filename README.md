@@ -123,6 +123,8 @@ List live matches across tournaments (limit to 10):
 rlcs-cli tournaments matches --live-only --limit 10
 ```
 
+Note: The following examples may use placeholders like `<tournamentID>` or `<matchID>`. You can obtain these IDs from the output of other commands. For example, run `rlcs-cli tournaments list` to find a `<tournamentID>`.
+
 List matches for a tournament filtered by team name:
 
 ```bash
