@@ -15,8 +15,8 @@ import (
 	"github.com/mgranderath/rlcs-cli/internal/output"
 )
 
-// GetMatchesCmd retrieves all matches for a tournament
-type GetMatchesCmd struct {
+// MatchesListCmd retrieves all matches for a tournament
+type MatchesListCmd struct {
 	TournamentID  string               `arg:"" help:"Tournament ID"`
 	CompletedOnly bool                 `help:"Show only completed matches"`
 	LiveOnly      bool                 `help:"Show only live matches"`
@@ -26,7 +26,7 @@ type GetMatchesCmd struct {
 	Output        output.MatchesFormat `help:"Output format (table, json, yaml)" default:"table" short:"o"`
 }
 
-func (g *GetMatchesCmd) matchesFilters(match domain.Match) bool {
+func (g *MatchesListCmd) matchesFilters(match domain.Match) bool {
 	// Status filters
 	if g.CompletedOnly && !match.IsCompleted {
 		return false
@@ -58,7 +58,7 @@ func (g *GetMatchesCmd) matchesFilters(match domain.Match) bool {
 	return true
 }
 
-func (g *GetMatchesCmd) Run(ctx *Context) error {
+func (g *MatchesListCmd) Run(ctx *Context) error {
 	// Validate conflicting filters
 	filterCount := 0
 	if g.CompletedOnly {
@@ -133,7 +133,7 @@ func (g *GetMatchesCmd) Run(ctx *Context) error {
 	return nil
 }
 
-func (g *GetMatchesCmd) applyFilters(matches []domain.Match) []domain.Match {
+func (g *MatchesListCmd) applyFilters(matches []domain.Match) []domain.Match {
 	// Check if any filters are applied
 	hasFilters := g.CompletedOnly || g.LiveOnly || g.UpcomingOnly || g.Team != "" || g.MatchType != ""
 	if !hasFilters {

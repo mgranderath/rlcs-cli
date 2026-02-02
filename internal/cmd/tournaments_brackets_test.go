@@ -9,118 +9,118 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGetBracketsCmd_matchesFilters(t *testing.T) {
+func TestTournamentsBracketsCmd_matchesFilters(t *testing.T) {
 	tests := []struct {
 		name     string
-		cmd      GetBracketsCmd
+		cmd      TournamentsBracketsCmd
 		match    domain.Match
 		expected bool
 	}{
 		{
 			name:     "no filters - match all",
-			cmd:      GetBracketsCmd{},
+			cmd:      TournamentsBracketsCmd{},
 			match:    domain.Match{IsCompleted: true, IsLive: false},
 			expected: true,
 		},
 		{
 			name:     "completed only - match",
-			cmd:      GetBracketsCmd{CompletedOnly: true},
+			cmd:      TournamentsBracketsCmd{CompletedOnly: true},
 			match:    domain.Match{IsCompleted: true, IsLive: false},
 			expected: true,
 		},
 		{
 			name:     "completed only - no match",
-			cmd:      GetBracketsCmd{CompletedOnly: true},
+			cmd:      TournamentsBracketsCmd{CompletedOnly: true},
 			match:    domain.Match{IsCompleted: false, IsLive: true},
 			expected: false,
 		},
 		{
 			name:     "live only - match",
-			cmd:      GetBracketsCmd{LiveOnly: true},
+			cmd:      TournamentsBracketsCmd{LiveOnly: true},
 			match:    domain.Match{IsLive: true, IsCompleted: false},
 			expected: true,
 		},
 		{
 			name:     "live only - no match",
-			cmd:      GetBracketsCmd{LiveOnly: true},
+			cmd:      TournamentsBracketsCmd{LiveOnly: true},
 			match:    domain.Match{IsLive: false, IsCompleted: true},
 			expected: false,
 		},
 		{
 			name:     "upcoming only - match",
-			cmd:      GetBracketsCmd{UpcomingOnly: true},
+			cmd:      TournamentsBracketsCmd{UpcomingOnly: true},
 			match:    domain.Match{IsLive: false, IsCompleted: false},
 			expected: true,
 		},
 		{
 			name:     "upcoming only - no match (completed)",
-			cmd:      GetBracketsCmd{UpcomingOnly: true},
+			cmd:      TournamentsBracketsCmd{UpcomingOnly: true},
 			match:    domain.Match{IsLive: false, IsCompleted: true},
 			expected: false,
 		},
 		{
 			name:     "upcoming only - no match (live)",
-			cmd:      GetBracketsCmd{UpcomingOnly: true},
+			cmd:      TournamentsBracketsCmd{UpcomingOnly: true},
 			match:    domain.Match{IsLive: true, IsCompleted: false},
 			expected: false,
 		},
 		{
 			name:     "team filter - match team A",
-			cmd:      GetBracketsCmd{Team: "Vitality"},
+			cmd:      TournamentsBracketsCmd{Team: "Vitality"},
 			match:    domain.Match{TeamA: domain.MatchTeam{Name: "Vitality"}, TeamB: domain.MatchTeam{Name: "KC"}},
 			expected: true,
 		},
 		{
 			name:     "team filter - match team B",
-			cmd:      GetBracketsCmd{Team: "KC"},
+			cmd:      TournamentsBracketsCmd{Team: "KC"},
 			match:    domain.Match{TeamA: domain.MatchTeam{Name: "Vitality"}, TeamB: domain.MatchTeam{Name: "KC"}},
 			expected: true,
 		},
 		{
 			name:     "team filter - case insensitive",
-			cmd:      GetBracketsCmd{Team: "vitality"},
+			cmd:      TournamentsBracketsCmd{Team: "vitality"},
 			match:    domain.Match{TeamA: domain.MatchTeam{Name: "Vitality"}, TeamB: domain.MatchTeam{Name: "KC"}},
 			expected: true,
 		},
 		{
 			name:     "team filter - partial match",
-			cmd:      GetBracketsCmd{Team: "Vita"},
+			cmd:      TournamentsBracketsCmd{Team: "Vita"},
 			match:    domain.Match{TeamA: domain.MatchTeam{Name: "Vitality"}, TeamB: domain.MatchTeam{Name: "KC"}},
 			expected: true,
 		},
 		{
 			name:     "team filter - no match",
-			cmd:      GetBracketsCmd{Team: "Furia"},
+			cmd:      TournamentsBracketsCmd{Team: "Furia"},
 			match:    domain.Match{TeamA: domain.MatchTeam{Name: "Vitality"}, TeamB: domain.MatchTeam{Name: "KC"}},
 			expected: false,
 		},
 		{
 			name:     "match type filter - match",
-			cmd:      GetBracketsCmd{MatchType: "BO5"},
+			cmd:      TournamentsBracketsCmd{MatchType: "BO5"},
 			match:    domain.Match{Type: "BO5"},
 			expected: true,
 		},
 		{
 			name:     "match type filter - case insensitive",
-			cmd:      GetBracketsCmd{MatchType: "bo5"},
+			cmd:      TournamentsBracketsCmd{MatchType: "bo5"},
 			match:    domain.Match{Type: "BO5"},
 			expected: true,
 		},
 		{
 			name:     "match type filter - no match",
-			cmd:      GetBracketsCmd{MatchType: "BO7"},
+			cmd:      TournamentsBracketsCmd{MatchType: "BO7"},
 			match:    domain.Match{Type: "BO5"},
 			expected: false,
 		},
 		{
 			name:     "multiple filters - all match",
-			cmd:      GetBracketsCmd{CompletedOnly: true, Team: "Vitality"},
+			cmd:      TournamentsBracketsCmd{CompletedOnly: true, Team: "Vitality"},
 			match:    domain.Match{IsCompleted: true, TeamA: domain.MatchTeam{Name: "Vitality"}},
 			expected: true,
 		},
 		{
 			name:     "multiple filters - one fails",
-			cmd:      GetBracketsCmd{CompletedOnly: true, Team: "Vitality"},
+			cmd:      TournamentsBracketsCmd{CompletedOnly: true, Team: "Vitality"},
 			match:    domain.Match{IsCompleted: false, TeamA: domain.MatchTeam{Name: "Vitality"}},
 			expected: false,
 		},
@@ -134,7 +134,7 @@ func TestGetBracketsCmd_matchesFilters(t *testing.T) {
 	}
 }
 
-func TestGetBracketsCmd_Run_HTTPMock(t *testing.T) {
+func TestTournamentsBracketsCmd_Run_HTTPMock(t *testing.T) {
 	defer gock.Off()
 
 	t.Run("successful fetch", func(t *testing.T) {
@@ -180,7 +180,7 @@ func TestGetBracketsCmd_Run_HTTPMock(t *testing.T) {
 				},
 			})
 
-		cmd := &GetBracketsCmd{
+		cmd := &TournamentsBracketsCmd{
 			TournamentID: "test-tournament-id",
 			Output:       output.BracketsFormatTable,
 		}
@@ -196,7 +196,7 @@ func TestGetBracketsCmd_Run_HTTPMock(t *testing.T) {
 			Get("/v2/games/rl/tournaments/invalid-id/brackets").
 			Reply(404)
 
-		cmd := &GetBracketsCmd{
+		cmd := &TournamentsBracketsCmd{
 			TournamentID: "invalid-id",
 			Output:       output.BracketsFormatTable,
 		}
@@ -212,7 +212,7 @@ func TestGetBracketsCmd_Run_HTTPMock(t *testing.T) {
 			Get("/v2/games/rl/tournaments/test-id/brackets").
 			Reply(500)
 
-		cmd := &GetBracketsCmd{
+		cmd := &TournamentsBracketsCmd{
 			TournamentID: "test-id",
 			Output:       output.BracketsFormatTable,
 		}
@@ -229,7 +229,7 @@ func TestGetBracketsCmd_Run_HTTPMock(t *testing.T) {
 			Reply(200).
 			JSON([]map[string]interface{}{})
 
-		cmd := &GetBracketsCmd{
+		cmd := &TournamentsBracketsCmd{
 			TournamentID: "empty-tournament",
 			Output:       output.BracketsFormatTable,
 		}
@@ -240,9 +240,9 @@ func TestGetBracketsCmd_Run_HTTPMock(t *testing.T) {
 	})
 }
 
-func TestGetBracketsCmd_Run_Validation(t *testing.T) {
+func TestTournamentsBracketsCmd_Run_Validation(t *testing.T) {
 	t.Run("conflicting status filters - completed and live", func(t *testing.T) {
-		cmd := &GetBracketsCmd{
+		cmd := &TournamentsBracketsCmd{
 			TournamentID:  "test-id",
 			CompletedOnly: true,
 			LiveOnly:      true,
@@ -255,7 +255,7 @@ func TestGetBracketsCmd_Run_Validation(t *testing.T) {
 	})
 
 	t.Run("conflicting status filters - all three", func(t *testing.T) {
-		cmd := &GetBracketsCmd{
+		cmd := &TournamentsBracketsCmd{
 			TournamentID:  "test-id",
 			CompletedOnly: true,
 			LiveOnly:      true,

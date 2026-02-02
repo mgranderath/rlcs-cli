@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGetMatchCmd_Run_HTTPMock(t *testing.T) {
+func TestMatchesGetCmd_Run_HTTPMock(t *testing.T) {
 	defer gock.Off()
 
 	t.Run("successful fetch", func(t *testing.T) {
@@ -67,7 +67,7 @@ func TestGetMatchCmd_Run_HTTPMock(t *testing.T) {
 				"metadata":   nil,
 			})
 
-		cmd := &GetMatchCmd{
+		cmd := &MatchesGetCmd{
 			MatchID: "test-match-id",
 			Output:  output.MatchesFormatTable,
 		}
@@ -83,7 +83,7 @@ func TestGetMatchCmd_Run_HTTPMock(t *testing.T) {
 			Get("/v2/matches/invalid-id/detailed").
 			Reply(404)
 
-		cmd := &GetMatchCmd{
+		cmd := &MatchesGetCmd{
 			MatchID: "invalid-id",
 			Output:  output.MatchesFormatTable,
 		}
@@ -99,7 +99,7 @@ func TestGetMatchCmd_Run_HTTPMock(t *testing.T) {
 			Get("/v2/matches/test-id/detailed").
 			Reply(500)
 
-		cmd := &GetMatchCmd{
+		cmd := &MatchesGetCmd{
 			MatchID: "test-id",
 			Output:  output.MatchesFormatTable,
 		}
@@ -116,7 +116,7 @@ func TestGetMatchCmd_Run_HTTPMock(t *testing.T) {
 			Reply(200).
 			BodyString("invalid json")
 
-		cmd := &GetMatchCmd{
+		cmd := &MatchesGetCmd{
 			MatchID: "test-id",
 			Output:  output.MatchesFormatTable,
 		}
@@ -174,7 +174,7 @@ func TestGetMatchCmd_Run_HTTPMock(t *testing.T) {
 				},
 			})
 
-		cmd := &GetMatchCmd{
+		cmd := &MatchesGetCmd{
 			MatchID: "match-with-maps",
 			Output:  output.MatchesFormatTable,
 		}
@@ -201,7 +201,7 @@ func TestGetMatchCmd_Run_HTTPMock(t *testing.T) {
 				"maps":        []map[string]interface{}{},
 			})
 
-		cmd := &GetMatchCmd{
+		cmd := &MatchesGetCmd{
 			MatchID: "json-test",
 			Output:  output.MatchesFormatJSON,
 		}
@@ -227,7 +227,7 @@ func TestGetMatchCmd_Run_HTTPMock(t *testing.T) {
 				"maps":        []map[string]interface{}{},
 			})
 
-		cmd := &GetMatchCmd{
+		cmd := &MatchesGetCmd{
 			MatchID: "yaml-test",
 			Output:  output.MatchesFormatYAML,
 		}
@@ -251,7 +251,7 @@ func TestGetMatchCmd_Run_HTTPMock(t *testing.T) {
 				"maps":        []map[string]interface{}{},
 			})
 
-		cmd := &GetMatchCmd{
+		cmd := &MatchesGetCmd{
 			MatchID: "invalid-time",
 			Output:  output.MatchesFormatTable,
 		}

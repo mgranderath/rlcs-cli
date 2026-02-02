@@ -15,8 +15,8 @@ import (
 	"github.com/mgranderath/rlcs-cli/internal/output"
 )
 
-// GetBracketsCmd retrieves tournament brackets
-type GetBracketsCmd struct {
+// TournamentsBracketsCmd retrieves tournament brackets
+type TournamentsBracketsCmd struct {
 	TournamentID  string                `arg:"" help:"Tournament ID (UUID)"`
 	CompletedOnly bool                  `help:"Show only completed matches"`
 	LiveOnly      bool                  `help:"Show only live matches"`
@@ -26,7 +26,7 @@ type GetBracketsCmd struct {
 	Output        output.BracketsFormat `help:"Output format (table, json, yaml)" default:"table" short:"o"`
 }
 
-func (g *GetBracketsCmd) matchesFilters(match domain.Match) bool {
+func (g *TournamentsBracketsCmd) matchesFilters(match domain.Match) bool {
 	// Status filters
 	if g.CompletedOnly && !match.IsCompleted {
 		return false
@@ -56,7 +56,7 @@ func (g *GetBracketsCmd) matchesFilters(match domain.Match) bool {
 	return true
 }
 
-func (g *GetBracketsCmd) Run(ctx *Context) error {
+func (g *TournamentsBracketsCmd) Run(ctx *Context) error {
 	// Validate conflicting filters
 	filterCount := 0
 	if g.CompletedOnly {
@@ -131,7 +131,7 @@ func (g *GetBracketsCmd) Run(ctx *Context) error {
 	return nil
 }
 
-func (g *GetBracketsCmd) applyFilters(brackets []domain.Bracket) []domain.Bracket {
+func (g *TournamentsBracketsCmd) applyFilters(brackets []domain.Bracket) []domain.Bracket {
 	// Check if any filters are applied
 	hasFilters := g.CompletedOnly || g.LiveOnly || g.UpcomingOnly || g.Team != "" || g.MatchType != ""
 	if !hasFilters {
