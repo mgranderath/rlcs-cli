@@ -7,8 +7,7 @@ Command-line interface for exploring Rocket League Championship Series (RLCS) to
 Homebrew (recommended):
 
 ```bash
-brew tap mgranderath/tap
-brew install rlcs-cli
+brew install mgranderath/tap/rlcs-cli
 ```
 
 Go install:
